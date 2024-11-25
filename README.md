@@ -29,9 +29,9 @@ _A fun and productive way to manage your objectives and goals!_
 
 | Feature          | Preview                                   |
 |------------------|-------------------------------------------|
-| **Home Page**    | ![Home Page Screenshot](./assets/home-page-screenshot.png)  |
-| **Objectives**   | ![Objectives Screenshot](./assets/objectives-screenshot.png) |
-| **Edit Mode**    | ![Edit Mode Screenshot](./assets/edit-mode-screenshot.png)  |
+| **Home Page**    | ![Home Page Screenshot](/assets/home-page-screenshot.png)  |
+| **Objectives**   | ![Objectives Screenshot](/assets/objectives-screenshot.png) |
+| **Edit Mode**    | ![Edit Mode Screenshot](/assets/edit-mode-screenshot.png)  |
 
 ---
 
