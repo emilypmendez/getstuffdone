@@ -37,13 +37,13 @@ export async function loginUser(email, password) {
 export async function fetchObjectives() {
   const { data, error } = await supabase
     .from('objectives')
-    .select('id, title, description, user_id'); // Explicitly fetch fields
+    .select('id, title, description, deadline, category, user_id'); // Explicitly fetch fields
   if (error) throw error;
   return data;
 }
 
 // Create a new objective
-export async function createObjective(title, description) {
+export async function createObjective(title, description, deadline, category) {
   try {
     console.log('Creating objective with:', { title, description }); // Debug log
     const userId = await getUserId();
@@ -54,7 +54,7 @@ export async function createObjective(title, description) {
     const { data, error } = await supabase
       .from('objectives')
       .insert([
-        { title, description, user_id: userId }
+        { title, description, user_id: userId, deadline, category }
       ])
       .select('*'); // Explicitly return the inserted rows
       console.log('Supabase response:', { data, error });

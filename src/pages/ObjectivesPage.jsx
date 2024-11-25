@@ -8,15 +8,21 @@ import {
 import { supabase } from '../supabase';
 import '../styles/ObjectivesPage.css';
 import { Link } from 'react-router-dom';
+// import { groupByCategory, groupByDate } from '../utils/objectiveHelpers';
 
 function ObjectivesPage() {
   const [objectives, setObjectives] = useState([]); // State to hold the list of objectives
-
+  
+  const [newCategory, setNewCategory] = useState('Work'); // Default to "Work"
+  const [editCategory, setEditCategory] = useState(''); // State for editing category
   const [newTitle, setNewTitle] = useState(''); // State for creating a new objective
   const [newDescription, setNewDescription] = useState('');
   const [editingId, setEditingId] = useState(null); // Tracks the ID of the objective being edited
   const [editTitle, setEditTitle] = useState(''); // State for the title of the objective being edited
   const [editDescription, setEditDescription] = useState(''); // State for the description of the objective being edited
+  const [newDeadline, setNewDeadline] = useState(''); // State for the new objective deadline
+  const [editDeadline, setEditDeadline] = useState(''); // State for editing an objective's deadline
+  const [groupBy, setGroupBy] = useState('category'); // Default to category grouping
 
   const [error, setError] = useState(''); // State for error messages
   const [success, setSuccess] = useState(false);  // State for success messages
@@ -65,6 +71,29 @@ function ObjectivesPage() {
     }
   }, [success]);
 
+  // group objectives by category
+  const groupByCategory = (objectives) => {
+    return objectives.reduce((groups, objective) => {
+      const category = objective.category || 'Uncategorized';
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(objective);
+      return groups;
+    }, {});
+  };
+
+  // group objectives by date
+  const groupByDate = (objectives, dateField) => {
+    return objectives.reduce((groups, objective) => {
+      const date = objective[dateField]
+        ? formatDate(objective[dateField]) // Format as MM, DD, YYYY
+        : 'No Date';
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(objective);
+      return groups;
+    }, {});
+  };
+
+
   // Handle creating a new objective
   const handleCreateObjective = async () => {
     if (!user) {
@@ -72,16 +101,29 @@ function ObjectivesPage() {
       return;
     }
 
-    console.log('Form values:', { newTitle, newDescription }); // Debug log
-    if (!newTitle || !newDescription) {
-      alert('Both title and description are required!');
+    if (!newTitle || !newDescription || !newDeadline || !newCategory) {
+      alert('All fields are required!');
       return;
     }
 
-    const newObjective = await createObjective(newTitle, newDescription);
+    console.log({
+      title: newTitle,
+      description: newDescription,
+      deadline: newDeadline,
+      category: newCategory,
+    }); // Log the data being sent
+
+    const newObjective = await createObjective({
+      title: newTitle,
+      description: newDescription,
+      deadline: newDeadline,
+      category: newCategory, // Include the category
+    });
     setObjectives((prev) => [...prev, newObjective]);
     setNewTitle(''); // Clear the form
     setNewDescription(''); // Clear the form
+    setNewDeadline(''); // Reset the deadline field
+    setNewCategory('Work'); // Reset to default
   };
 
   // Handle objective EDIT
@@ -98,18 +140,22 @@ function ObjectivesPage() {
     setEditingId(id);
     setEditTitle(objectiveToEdit.title || '');
     setEditDescription(objectiveToEdit.description || '');
+    setEditDeadline(objectiveToEdit.deadline || ''); // Set deadline for editing
+    setEditCategory(objectiveToEdit.category || 'Work'); // Default to "Work"
   };
 
   // Handle saving the edited objective
   const handleSaveEdit = async () => {
-    if (!editTitle.trim() || !editDescription.trim()) {
-      alert('Both title and description are required!');
+    if (!editTitle.trim() || !editDescription.trim() || !editDeadline || !editCategory) {
+      alert('All fields are required!');
       return;
     }
     try{
       const updatedObjective = await updateObjective(editingId, {
         title: editTitle,
         description: editDescription,
+        deadline: editDeadline, // Include the deadline in the update
+        category: editCategory, // Include the category in the update
       });
 
       setObjectives((prev) =>
@@ -120,6 +166,8 @@ function ObjectivesPage() {
       setEditingId(null); // Exit edit mode
       setEditTitle('');
       setEditDescription('');
+      setEditDeadline(''); // Reset deadline
+      setEditCategory('');
     } catch (err) {
       console.error('Error updating objective:', err.message);
       setError('Failed to update objective.');
@@ -180,30 +228,121 @@ function ObjectivesPage() {
     }
   }
 
+  const groupedObjectives =
+    groupBy === 'category'
+      ? groupByCategory(objectives)
+      : groupByDate(objectives, 'deadline');
+  
+  console.log('Grouped Objectives:', groupedObjectives);
+
+  if (!objectives.length) {
+    return <p>No objectives found. Create one to get started!</p>;
+  }  
+
+
   return (
-    <div>
+    <div className="objectives-page">
+      {/* Left Column: Objectives List */}
+      <div className="objectives-list">
       <br/>
-      <h1>List All of Your Objectives for the Week</h1>
+      <h1>List Your Weekly Objectives</h1>
       <p>Start by addressing the Title as <strong>Home, Work,</strong> or <strong>Personal.</strong> <br/>
-      Then, fill out a short description of the task at hand.</p>
+      Then, fill out a short description of the task at hand. Be sure to include a deadline for this week.</p>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
 
       {/* Create New Objective */}
       <div>
+        <div>
+          <h3>Category</h3>
+          <label>
+            <input
+              type="radio"
+              name="category"
+              value="Work"
+              checked={newCategory === 'Work'}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            Work
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="category"
+              value="Home"
+              checked={newCategory === 'Home'}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            Home
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="category"
+              value="Personal"
+              checked={newCategory === 'Personal'}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+            Personal
+          </label>
+        </div>
+
         <input
           type="text"
           placeholder="Title"
           value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value).toUpperCase()}
+          onChange={(e) => setNewTitle(e.target.value)}
         />
         <textarea
           placeholder="Description"
           value={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
         />
+        <input
+          type="date"
+          value={newDeadline} // Add deadline input field
+          onChange={(e) => setNewDeadline(e.target.value)} // Update state
+        />
         <button className="btn btn-primary" onClick={handleCreateObjective}><strong>Add Objective</strong></button>
         <br/><br/>
+      </div>
+
+      <div className="filters">
+        <label>Group By:</label>
+        <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
+          <option value="category">Category</option>
+          <option value="deadline">Deadline</option>
+        </select>
+      </div>
+
+      <div className="grouped-objectives">
+        <h1>Organize Your Objectives</h1>
+        {groupedObjectives && Object.entries(groupedObjectives).length > 0 ? (
+          Object.entries(groupedObjectives).map(([group, groupObjectives]) => (
+            <section key={group} className="objective-group">
+              <h2>{group.toUpperCase()}</h2>
+              <div className="objectives-grid">
+              <ul>
+                {groupObjectives.map((objective) => (
+                  <li key={objective.id} className="objective-card">
+                    <strong>Title:</strong> {objective.title || 'Untitled'}
+                    <br />
+                    <strong>Description:</strong> {objective.description || 'No description'}
+                    <br />
+                    <strong>Due By:</strong> {formatDate(objective.deadline) || 'No date provided'}
+                    <br />
+                    <strong>Category:</strong> {objective.category || 'Uncategorized'}
+                    <br />
+                  </li>
+                ))}
+              </ul>
+            </div>
+            </section>
+          ))
+        ) : (
+          <p>No objectives found. Create one to get started!</p>
+        )}
+      </div>
       </div>
 
       {/* List Objectives */}
@@ -225,6 +364,40 @@ function ObjectivesPage() {
               {/* Edit Objective Section */}
               {editingId === obj.id ? (
                 <>
+                <div>
+                  <h3>Category</h3>
+                  <label>
+                    <input
+                      type="radio"
+                      name="edit-category"
+                      value="Work"
+                      checked={editCategory === 'Work'}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                    />
+                    Work
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="edit-category"
+                      value="Home"
+                      checked={editCategory === 'Home'}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                    />
+                    Home
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="edit-category"
+                      value="Personal"
+                      checked={editCategory === 'Personal'}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                    />
+                    Personal
+                  </label>
+                </div>
+
                   <input
                     type="text"
                     value={editTitle}
@@ -233,6 +406,11 @@ function ObjectivesPage() {
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
+                  />
+                  <input
+                    type="date"
+                    value={editDeadline}
+                    onChange={(e) => setEditDeadline(e.target.value)}
                   />
                   <br/>
                   <button className="btn btn-dark" onClick={() => handleSaveEdit(obj.id)}><strong>Save</strong></button>
@@ -243,14 +421,15 @@ function ObjectivesPage() {
                 <>
                   <div>
                     <table>
-                      <th><strong>{obj?.title || 'Untitled'} :</strong></th>
-                      <tr><td><strong>{obj?.description || 'No description'}</strong></td></tr>
-                      <tr><td><message>Due By: {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
-                      <tr><td><message>Date Created: {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
+                      <th><strong>Title:</strong> {obj?.title || 'Untitled'}</th>
+                      <tr><td><strong>Description: </strong>{obj?.description || 'No description entered'}</td></tr>
+                      <tr><td><message><strong>Due By:</strong> {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
+                      <tr><td><strong>Category:</strong> {obj?.category || 'No category saved'}</td></tr>
+                      <tr><td><message><strong>Date Created:</strong> {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
                     </table>
                     <br/>
-                    <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><strong>Edit</strong></button>
-                    <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><strong>Delete</strong></button>
+                    <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><i className="fas fa-edit"></i><strong> Edit</strong></button>
+                    <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><i className="fas fa-trash"></i><strong> Delete</strong></button>
                     <br/><br/>
                   </div>
                 </>

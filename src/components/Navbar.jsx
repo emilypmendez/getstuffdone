@@ -71,7 +71,7 @@ const Navbar = () => {
           ) : (
             <>
               <li>
-                <Link to="/objectives">Objectives</Link>
+                <Link to="/objectives">View My Objectives</Link>
               </li>
               <li>
                 <button
