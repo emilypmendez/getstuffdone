@@ -246,74 +246,112 @@ function ObjectivesPage() {
       <div className="objectives-list">
       <br/>
       <h1>List Your Weekly Objectives</h1>
-      <p>Start by addressing the Title as <strong>Home, Work,</strong> or <strong>Personal.</strong> <br/>
-      Then, fill out a short description of the task at hand. Be sure to include a deadline for this week.</p>
+      <p>Start by addressing the Title. {''}
+      Then, fill out a short description of the task at hand. Be sure to include a deadline and a category,
+      such as <strong>Home, Work,</strong> or <strong>Personal</strong>.</p>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
 
       {/* Create New Objective */}
-      <div>
-        <div>
-          <h3>Category</h3>
-          <label>
+      <div className="objective-input-form">
+        <h2>Add a New Objective</h2>
+
+        <form onSubmit={handleCreateObjective}>
+          {/* Title Field */}
+          <div className="form-group">
+            <label htmlFor="title">Title</label>
             <input
-              type="radio"
-              name="category"
-              value="Work"
-              checked={newCategory === 'Work'}
-              onChange={(e) => setNewCategory(e.target.value)}
+              type="text"
+              id="title"
+              placeholder="Enter the title (e.g., Work Task)"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              required
+              className={newTitle.trim() ? '' : 'input-error'}
             />
-            Work
-          </label>
-          <label>
+            {!newTitle.trim() && <p className="error-message">Title is required.</p>}
+          </div>
+
+          {/* Description Field */}
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              placeholder="Describe the task..."
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              rows="4"
+              required
+            ></textarea>
+          </div>
+
+          {/* Deadline Field */}
+          <div className="form-group">
+            <label htmlFor="deadline">Deadline</label>
             <input
-              type="radio"
-              name="category"
-              value="Home"
-              checked={newCategory === 'Home'}
-              onChange={(e) => setNewCategory(e.target.value)}
+              type="date"
+              id="deadline"
+              value={newDeadline}
+              onChange={(e) => setNewDeadline(e.target.value)}
+              required
             />
-            Home
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="category"
-              value="Personal"
-              checked={newCategory === 'Personal'}
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            Personal
-          </label>
+          </div>
+
+        {/* Category Field */}
+          <div className="form-group">
+            <label>Category</label>
+              <div className="radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Work"
+                    checked={newCategory === 'Work'}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  Work
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Home"
+                    checked={newCategory === 'Home'}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  Home
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="category"
+                    value="Personal"
+                    checked={newCategory === 'Personal'}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  Personal
+                </label>
+              </div>
+            </div>
+
+              {/* Action Buttons */}
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary">Save Objective</button>
+                <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+
+        <div className="filters">
+          <label>Group By:</label>
+          <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
+            <option value="category">Category</option>
+            <option value="deadline">Deadline</option>
+          </select>
         </div>
-
-        <input
-          type="text"
-          placeholder="Title"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Description"
-          value={newDescription}
-          onChange={(e) => setNewDescription(e.target.value)}
-        />
-        <input
-          type="date"
-          value={newDeadline} // Add deadline input field
-          onChange={(e) => setNewDeadline(e.target.value)} // Update state
-        />
-        <button className="btn btn-primary" onClick={handleCreateObjective}><strong>Add Objective</strong></button>
-        <br/><br/>
-      </div>
-
-      <div className="filters">
-        <label>Group By:</label>
-        <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
-          <option value="category">Category</option>
-          <option value="deadline">Deadline</option>
-        </select>
-      </div>
 
       <div className="grouped-objectives">
         <h1>Organize Your Objectives</h1>
