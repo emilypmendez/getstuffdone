@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 
 function ObjectivesPage() {
   const [objectives, setObjectives] = useState([]); // State to hold the list of objectives
+
   const [newTitle, setNewTitle] = useState(''); // State for creating a new objective
   const [newDescription, setNewDescription] = useState('');
   const [editingId, setEditingId] = useState(null); // Tracks the ID of the objective being edited
@@ -79,33 +80,50 @@ function ObjectivesPage() {
 
     const newObjective = await createObjective(newTitle, newDescription);
     setObjectives((prev) => [...prev, newObjective]);
-    setNewTitle('');
-    setNewDescription('');
+    setNewTitle(''); // Clear the form
+    setNewDescription(''); // Clear the form
   };
 
   // Handle objective EDIT
-  const handleEditClick = (id, currentTitle, currentDescription) => {
+  const handleEditClick = (id) => {
+    const objectiveToEdit = objectives.find((obj) => obj.id === id);
+
+    if (!objectiveToEdit) {
+      console.error('Objective not found:', id);
+      setError('Failed to find objective to edit.');
+      return;
+    }
+    
+    console.log('Editing objective:', objectiveToEdit); // Debug log
     setEditingId(id);
-    setEditTitle(currentTitle);
-    setEditDescription(currentDescription);
+    setEditTitle(objectiveToEdit.title || '');
+    setEditDescription(objectiveToEdit.description || '');
   };
 
   // Handle saving the edited objective
   const handleSaveEdit = async () => {
-    if (!editTitle || !editDescription) {
+    if (!editTitle.trim() || !editDescription.trim()) {
       alert('Both title and description are required!');
       return;
     }
-    const updatedObjective = await updateObjective(editingId, {
-      title: editTitle,
-      description: editDescription,
-    });
-    setObjectives((prev) =>
-      prev.map((obj) => (obj.id === editingId ? updatedObjective : obj))
-    );
-    setEditingId(null); // Exit edit mode
-    setEditTitle('');
-    setEditDescription('');
+    try{
+      const updatedObjective = await updateObjective(editingId, {
+        title: editTitle,
+        description: editDescription,
+      });
+
+      setObjectives((prev) =>
+        prev.map((obj) => (obj.id === editingId ? updatedObjective : obj))
+      );
+  
+      // Reset editing state
+      setEditingId(null); // Exit edit mode
+      setEditTitle('');
+      setEditDescription('');
+    } catch (err) {
+      console.error('Error updating objective:', err.message);
+      setError('Failed to update objective.');
+    }
   };
 
   // Handle canceling edit
@@ -125,6 +143,18 @@ function ObjectivesPage() {
       console.error('Error deleting objective:', err.message);
       setError('Failed to delete objective.');
     }
+  };  
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No date provided';
+  
+    const date = new Date(dateString);
+  
+    const options = { year: 'numeric', month: 'long', day: '2-digit' }; // 'long' for full month name
+    const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+  
+    return formattedDate; // Example: "November 24, 2024"
   };  
 
   if (loading) {
@@ -152,8 +182,10 @@ function ObjectivesPage() {
 
   return (
     <div>
+      <br/>
       <h1>List All of Your Objectives for the Week</h1>
-
+      <p>Start by addressing the Title as <strong>Home, Work,</strong> or <strong>Personal.</strong> <br/>
+      Then, fill out a short description of the task at hand.</p>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
 
@@ -163,14 +195,15 @@ function ObjectivesPage() {
           type="text"
           placeholder="Title"
           value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
+          onChange={(e) => setNewTitle(e.target.value).toUpperCase()}
         />
         <textarea
           placeholder="Description"
           value={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
         />
-        <button onClick={handleCreateObjective}>Add Objective</button>
+        <button className="btn btn-primary" onClick={handleCreateObjective}><strong>Add Objective</strong></button>
+        <br/><br/>
       </div>
 
       {/* List Objectives */}
@@ -194,23 +227,31 @@ function ObjectivesPage() {
                 <>
                   <input
                     type="text"
-                    defaultValue={editTitle}
+                    value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                   />
                   <textarea
-                    defaultValue={editDescription}
+                    value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                   />
                   <br/>
-                  <button onClick={() => handleSaveEdit(obj.id)}>Save</button>
-                  <button onClick={() => handleCancelEdit(null)}>Cancel</button>
+                  <button className="btn btn-dark" onClick={() => handleSaveEdit(obj.id)}><strong>Save</strong></button>
+                  <button className="btn btn-danger" onClick={() => handleCancelEdit(null)}><strong>Cancel</strong></button>
+                  <br/><br/>
                 </>
               ) : (
                 <>
                   <div>
-                    <strong>{obj?.title || 'Untitled'}</strong>: {obj?.description || 'No description'}
-                    <button className="editButton" onClick={() => handleEditClick(obj.id)}>Edit</button>
-                    <button className="deleteButton" onClick={() => handleDeleteObjective(obj.id)}>Delete</button>
+                    <table>
+                      <th><strong>{obj?.title || 'Untitled'} :</strong></th>
+                      <tr><td><strong>{obj?.description || 'No description'}</strong></td></tr>
+                      <tr><td><message>Due By: {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
+                      <tr><td><message>Date Created: {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
+                    </table>
+                    <br/>
+                    <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><strong>Edit</strong></button>
+                    <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><strong>Delete</strong></button>
+                    <br/><br/>
                   </div>
                 </>
               )}
