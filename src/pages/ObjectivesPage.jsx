@@ -83,47 +83,70 @@ function ObjectivesPage() {
 
   // group objectives by date
   const groupByDate = (objectives, dateField) => {
-    return objectives.reduce((groups, objective) => {
+    // Filter out objectives without a valid date and sort by the specified date field
+    const sortedObjectives = objectives
+    .filter((obj) => obj[dateField]) // Ensure valid dates exist
+    .sort((a, b) => new Date(a[dateField]) - new Date(b[dateField])); // Sort ascending
+
+    return sortedObjectives.reduce((groups, objective) => {
       const date = objective[dateField]
-        ? formatDate(objective[dateField]) // Format as MM, DD, YYYY
+        ? formatDate(objective[dateField]) // Format as "Month, Day, Year"
         : 'No Date';
+
       if (!groups[date]) groups[date] = [];
       groups[date].push(objective);
+
       return groups;
     }, {});
   };
 
 
   // Handle creating a new objective
-  const handleCreateObjective = async () => {
+  const handleCreateObjective = async (e) => {
+    e.preventDefault(); // Prevent the page from refreshing
+    
     if (!user) {
       setError(`You must be logged in to create an objective.`);
       return;
     }
 
-    if (!newTitle || !newDescription || !newDeadline || !newCategory) {
-      alert('All fields are required!');
+    if (!newTitle.trim() || !newDescription.trim() || !newDeadline || !newCategory) {
+      setError('All fields are required!');
       return;
     }
 
-    console.log({
-      title: newTitle,
-      description: newDescription,
-      deadline: newDeadline,
-      category: newCategory,
-    }); // Log the data being sent
+    try {
+      // console.log('Creating objective:', { newTitle, newDescription, newDeadline, newCategory });
+      
+      // console.log({
+      //   title: newTitle,
+      //   description: newDescription,
+      //   deadline: newDeadline,
+      //   category: newCategory,
+      // }); // Log the data being sent to the server
 
-    const newObjective = await createObjective({
-      title: newTitle,
-      description: newDescription,
-      deadline: newDeadline,
-      category: newCategory, // Include the category
-    });
-    setObjectives((prev) => [...prev, newObjective]);
-    setNewTitle(''); // Clear the form
-    setNewDescription(''); // Clear the form
-    setNewDeadline(''); // Reset the deadline field
-    setNewCategory('Work'); // Reset to default
+      const newObjective = await createObjective({
+        title: newTitle.trim(),
+        description: newDescription.trim(),
+        deadline: newDeadline,
+        category: newCategory,
+      });
+  
+      console.log('Objective created:', newObjective);
+  
+      // Update state
+      setObjectives((prev) => [...prev, newObjective]);
+  
+      // Reset form fields
+      setNewTitle('');
+      setNewDescription('');
+      setNewDeadline('');
+      setNewCategory('Work');
+      setSuccess(true);
+    } catch (error) {
+      console.error('Error creating objective:', error);
+      setError('Failed to create objective. Please try again.');
+    }
   };
 
   // Handle objective EDIT
@@ -183,6 +206,9 @@ function ObjectivesPage() {
 
   // Handle objective DELETION
   const handleDeleteObjective = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this objective?");
+    if (!confirmDelete) return; // exit if user cancels the action
+
     try {
       console.log('Attempting to delete objective with ID:', id); // Debug log
       await deleteObjective(id);
@@ -233,44 +259,42 @@ function ObjectivesPage() {
       ? groupByCategory(objectives)
       : groupByDate(objectives, 'deadline');
   
-  console.log('Grouped Objectives:', groupedObjectives);
-
-  if (!objectives.length) {
-    return <p>No objectives found. Create one to get started!</p>;
-  }  
-
+  console.log('Grouped Objectives:', groupedObjectives); // Debug log
 
   return (
     <div className="objectives-page">
-      {/* Left Column: Objectives List */}
-      <div className="objectives-list">
-      <br/>
-      <h1>List Your Weekly Objectives</h1>
-      <p>Start by addressing the Title. {''}
-      Then, fill out a short description of the task at hand. Be sure to include a deadline and a category,
-      such as <strong>Home, Work,</strong> or <strong>Personal</strong>.</p>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
-
-      {/* Create New Objective */}
-      <div className="objective-input-form">
-        <h2>Add a New Objective</h2>
-
-        <form onSubmit={handleCreateObjective}>
-          {/* Title Field */}
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              placeholder="Enter the title (e.g., Work Task)"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              required
-              className={newTitle.trim() ? '' : 'input-error'}
-            />
-            {!newTitle.trim() && <p className="error-message">Title is required.</p>}
+      {/* Left Column: Input Form and Objectives List */}
+      <div className="left-column">
+        {/* Objective Input Form */}
+        <div className="objectives-list">
+          <br/>
+          <div className="objectives-page-header">
+            <h1>List Your Goals and Objectives</h1>
+            <p>Start by addressing the Title. {''}
+            Then, fill out a short description of the task at hand. Be sure to include a deadline and a category,
+            such as <strong>Home, Work,</strong> or <strong>Personal</strong>.</p>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
           </div>
+
+        {/* Objective Input Form */}  
+        <div className="objective-input-form">
+          <h2>Add a New Objective</h2>
+          <form onSubmit={handleCreateObjective}>
+            {/* Title Field */}
+            <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input
+                type="text"
+                id="title"
+                placeholder="Enter the title (e.g., Work Task)"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                required
+                className={newTitle.trim() ? '' : 'input-error'}
+              />
+              {!newTitle.trim() && <p className="error-message">Title is required.</p>}
+            </div>
 
           {/* Description Field */}
           <div className="form-group">
@@ -337,14 +361,121 @@ function ObjectivesPage() {
               {/* Action Buttons */}
               <div className="form-actions">
                 <button type="submit" className="btn btn-primary">Save Objective</button>
-                <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
-                  Cancel
+                <button type="button" className="btn btn-warning" onClick={() => {
+                    setNewTitle('');
+                    setNewDescription('');
+                    setNewDeadline('');
+                    setNewCategory('Work');
+                  }}>
+                    Clear Form
                 </button>
+
               </div>
             </form>
           </div>
 
+      {/* List of All Editable Objectives */}
+    <div className="objectives-list">
+      {loading ? (
+          <p>Loading objectives...</p> // Render while fetching data
+        ) : (
+        <div className="objectives-list">
+          {objectives.length === 0 ? (
+            <p>No objectives found. Create one to get started!</p>
+          ) : (
+          <div className="objectives-grid">
+            {objectives.map((obj, index) => (
+                <div key={obj?.id || index} className="objective-card">
+                  {/* Editing Mode */}
+                  {editingId === obj.id ? (
+                    <>
+                    <div>
+                      <h3>Category</h3>
+                      <label>
+                        <input
+                          type="radio"
+                          name="edit-category"
+                          value="Work"
+                          checked={editCategory === 'Work'}
+                          onChange={(e) => setEditCategory(e.target.value)}
+                        />
+                        Work
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="edit-category"
+                          value="Home"
+                          checked={editCategory === 'Home'}
+                          onChange={(e) => setEditCategory(e.target.value)}
+                        />
+                        Home
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="edit-category"
+                          value="Personal"
+                          checked={editCategory === 'Personal'}
+                          onChange={(e) => setEditCategory(e.target.value)}
+                        />
+                        Personal
+                      </label>
+                    </div>
 
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                      />
+                      <textarea
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        value={editDeadline}
+                        onChange={(e) => setEditDeadline(e.target.value)}
+                      />
+                      <br/>
+                      <button className="btn btn-dark" onClick={() => handleSaveEdit(obj.id)}><strong>Save</strong></button>
+                      <button className="btn btn-danger" onClick={() => handleCancelEdit(null)}><strong>Cancel</strong></button>
+                      <br/><br/>
+                    </>
+                  ) : (
+                    <>
+                    {/* Display Mode */}
+                      <div>
+                        <table>
+                          <th><strong>•</strong> {obj?.title || 'Untitled'}</th>
+                          <tr><td><strong>•</strong> {obj?.description || 'No description entered'}</td></tr>
+                          <tr><td><message><strong>Due By:</strong> {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
+                          <tr><td><strong>Category:</strong> {obj?.category || 'No category saved'}</td></tr>
+                          <tr><td><message><strong>Date Created:</strong> {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
+                        </table>
+                        <br/>
+                        <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><i className="fas fa-edit"></i><strong> Edit</strong></button>
+                        <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><i className="fas fa-trash"></i><strong> Delete</strong></button>
+                        <br/>
+                        <br/>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+          </div>
+        )} 
+        </div>
+      )}
+    </div>  
+
+      </div>
+      </div>
+
+      {/* Right Column: Group By */}
+      <div className="right-column">
+        <h3>Filters</h3>
+        {/* GroupedBy Filter Dropdown */}
         <div className="filters">
           <label>Group By:</label>
           <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
@@ -353,6 +484,7 @@ function ObjectivesPage() {
           </select>
         </div>
 
+        {/* Grouped Objectives */}
       <div className="grouped-objectives">
         <h1>Organize Your Objectives</h1>
         {groupedObjectives && Object.entries(groupedObjectives).length > 0 ? (
@@ -378,109 +510,14 @@ function ObjectivesPage() {
             </section>
           ))
         ) : (
-          <p>No objectives found. Create one to get started!</p>
+          <p>No grouped objectives available.</p>
         )}
       </div>
       </div>
+    {/* </div> */}
+        
 
-      {/* List Objectives */}
-      <div>
-      {loading ? (
-          <p>Loading objectives...</p> // Render while fetching data
-        ) : (
-          <ul>
-        {objectives.length === 0 ? (
-          <p>No objectives found. Create one to get started!</p>
-        ) : (
-          <ul>
-        {objectives
-          .filter((obj) => obj) // Remove undefined entries
-          .map((obj, index) => {
-          console.log(`Rendering objective at index ${index}:`, obj); // Debugging log
-          return (
-            <li key={obj?.id || index}>
-              {/* Edit Objective Section */}
-              {editingId === obj.id ? (
-                <>
-                <div>
-                  <h3>Category</h3>
-                  <label>
-                    <input
-                      type="radio"
-                      name="edit-category"
-                      value="Work"
-                      checked={editCategory === 'Work'}
-                      onChange={(e) => setEditCategory(e.target.value)}
-                    />
-                    Work
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="edit-category"
-                      value="Home"
-                      checked={editCategory === 'Home'}
-                      onChange={(e) => setEditCategory(e.target.value)}
-                    />
-                    Home
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="edit-category"
-                      value="Personal"
-                      checked={editCategory === 'Personal'}
-                      onChange={(e) => setEditCategory(e.target.value)}
-                    />
-                    Personal
-                  </label>
-                </div>
-
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                  />
-                  <textarea
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                  />
-                  <input
-                    type="date"
-                    value={editDeadline}
-                    onChange={(e) => setEditDeadline(e.target.value)}
-                  />
-                  <br/>
-                  <button className="btn btn-dark" onClick={() => handleSaveEdit(obj.id)}><strong>Save</strong></button>
-                  <button className="btn btn-danger" onClick={() => handleCancelEdit(null)}><strong>Cancel</strong></button>
-                  <br/><br/>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <table>
-                      <th><strong>Title:</strong> {obj?.title || 'Untitled'}</th>
-                      <tr><td><strong>Description: </strong>{obj?.description || 'No description entered'}</td></tr>
-                      <tr><td><message><strong>Due By:</strong> {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
-                      <tr><td><strong>Category:</strong> {obj?.category || 'No category saved'}</td></tr>
-                      <tr><td><message><strong>Date Created:</strong> {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
-                    </table>
-                    <br/>
-                    <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><i className="fas fa-edit"></i><strong> Edit</strong></button>
-                    <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><i className="fas fa-trash"></i><strong> Delete</strong></button>
-                    <br/><br/>
-                  </div>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-
-        )} 
-        </ul>
-      )}
-      </div>      
+      
     </div>
   );
 }
