@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ObjectivesPage from './pages/ObjectivesPage';
 import Navbar from './components/Navbar';
+import FeedbackPage from './pages/FeedbackPage';
 
 import { AuthProvider } from './services/index';
 import { supabase } from './supabase';
@@ -69,6 +70,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/objectives" element={ <ObjectivesPage /> } />
+          <Route path="/feedback" element={<FeedbackPage />} />
           <Route path="*" element={<h1>404: Page Not Found</h1>} />
         </Routes>
         </div>

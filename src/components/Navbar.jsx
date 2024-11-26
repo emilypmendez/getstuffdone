@@ -27,6 +27,9 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
                 <Link to="/objectives">View My Objectives</Link>
               </li>
               <li>
+                <Link to="/feedback">Give Feedback</Link>
+              </li>
+              <li>
                 <button
                   onClick={() => {
                     handleLogout()
