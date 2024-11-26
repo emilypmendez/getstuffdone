@@ -1,16 +1,31 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/HomePage.css";
+import { fetchAverageRating } from '../services/supabaseClient';
 
 const HomePage = () => {
+
+  const [averageRating, setAverageRating] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      const loadAverageRating = async () => {
+          const avgRating = await fetchAverageRating();
+          setAverageRating(avgRating); // Update the average rating
+          setLoading(false); // Set loading to false
+      };
+
+      loadAverageRating();
+  }, []);
+  
   return (
     <div className="home-page">
       {/* Hero Section */}
       <header className="hero-section">
         <div className="hero-content">
-          <h1>Get Stuff Done - Fast!</h1>
+          <h1>Fast. Easy. Clean.</h1>
           <h5>
-            Simplify your life with an intuitive task manager designed to help
-            you stay organized and productive.
+            Stay organized and productive.
           </h5>
           <Link to="/register" className="cta-button">
             <strong>Register Now</strong>
@@ -27,29 +42,27 @@ const HomePage = () => {
       {/* Features Section */}
       <section className="features-section">
         <h2>Why Choose Our App?</h2>
+        <br/>
         <div className="features-grid">
           <div className="feature-card">
             <i className="fas fa-list-alt"></i>
             <h3>Organize Objectives</h3>
             <p>
-              Create, edit, and manage objectives effortlessly. Track your
-              progress and stay focused.
+              Create, edit, and manage objectives effortlessly.
             </p>
           </div>
           <div className="feature-card">
             <i className="fas fa-calendar-check"></i>
             <h3>Set Deadlines</h3>
             <p>
-              Never miss a task with deadlines and reminders. Prioritize your
-              work like a pro.
+              Never miss a task with deadlines and reminders.
             </p>
           </div>
           <div className="feature-card">
             <i className="fas fa-tags"></i>
             <h3>Group by Category</h3>
             <p>
-              Easily group and filter objectives by category or deadline for
-              better organization.
+              Easily group and filter objectives by category or deadline.
             </p>
           </div>
         </div>
@@ -61,31 +74,52 @@ const HomePage = () => {
         <div className="testimonials-grid">
           <div className="testimonial-card">
             <p><quote>
-              This app transformed how I manage my work and personal tasks.<br/>
-              I feel more productive than ever!
+              <em>This app transformed how I manage my work and personal tasks.<br/>
+              I feel more productive than ever!</em>
             </quote></p>
-            <strong>- Alex Johnson</strong>
+            <strong>- Alex from Florida, USA</strong>
           </div>
           <div className="testimonial-card">
             <p>
-              "The grouping and deadline features are game-changers. Highly
-              recommend it!"
+              <em>The grouping and deadline features are game-changers. Highly
+              recommend it!</em>
             </p>
-            <strong>- Priya Sharma</strong>
+            <strong>- Priya from Pakistan</strong>
           </div>
           <div className="testimonial-card">
             <p>
-              "I love how intuitive and easy to use this app is. <br/> It has made my
-              daily life so much simpler."
+              <em>I love how it is intuitive and easy to use. <br/> It made my
+              daily life so much simpler.</em>
             </p>
-            <strong>- Michael Chen</strong>
+            <strong>- Michael from New York, USA</strong>
           </div>
         </div>
       </section>
 
       {/* Call to Action */}
       <footer className="cta-section">
-        <h2>Ready to Take Control of Your Tasks?</h2>
+        <div className="rating-display">
+            {loading ? (
+                <p>Loading average rating...</p>
+            ) : (
+              <>
+                <h2>Average Rating: {averageRating.toFixed(1)} / 5</h2>
+                <div className="stars">
+                  {[...Array(5)].map((_, i) => (
+                      <i
+                          key={i}
+                          className={
+                              i < Math.round(averageRating)
+                                  ? 'fas fa-star filled'
+                                  : 'far fa-star'
+                          }
+                      ></i>
+                  ))}
+                </div>
+              </>
+            )}
+        </div>
+        <br/><br/>
         <Link to="/register" className="cta-button">
           Get Started for Free
         </Link>

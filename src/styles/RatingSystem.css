@@ -1,0 +1,29 @@
+.rating-system {
+    text-align: center;
+    margin: 20px;
+  }
+  
+  .stars {
+    display: inline-flex;
+    cursor: pointer;
+  }
+  
+  .star {
+    font-size: 2rem;
+    color: lightgray;
+    margin: 0 5px;
+    transition: color 0.2s;
+  }
+  
+  .star.filled {
+    color: gold;
+  }
+  
+  .rating-info {
+    margin-top: 10px;
+  }
+  
+  .rating-info p {
+    font-size: 1.2rem;
+  }
+  

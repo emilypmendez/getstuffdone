@@ -33,13 +33,14 @@
   }
   
   .cta-button {
-    background-color: #9c3712;
+    background-color: #000000;
     color: white;
     text-decoration: none;
     padding: 10px 20px;
     border-radius: 5px;
     font-weight: bold;
     display: inline-block;
+    font-size: 1.2rem;
   }
   
   .features-section,
@@ -79,3 +80,16 @@
     background-color: #000000;
   }
   
+  .stars {
+    display: flex;
+    gap: 5px;
+  }
+
+  .stars .fa-star {
+      font-size: 1.5rem;
+      color: gold;
+  }
+
+  .stars .fa-star.filled {
+      color: orange;
+  }

@@ -145,3 +145,57 @@ export async function logoutUser() {
   }
   console.log('User logged out successfully');
 }
+
+// Submit a new rating
+export const submitRating = async (userId, rating) => {
+  const { data, error } = await supabase
+    .from("ratings")
+    .upsert(
+      { user_id: userId, rating }, // Insert or update this row
+      { onConflict: 'user_id' }   // Ensure unique user_id
+    );
+
+  if (error) {
+    console.error("Error submitting rating:", error.message);
+    return null;
+  }
+  return data;
+};
+
+// Fetch average rating and total ratings
+export const fetchRatings = async () => {
+  const { data, error } = await supabase
+    .from("ratings")
+    .select("rating");
+
+  if (error) {
+    console.error("Error fetching ratings:", error.message);
+    return { average: 0, total: 0 };
+  }
+
+  const totalRatings = data.length;
+  const averageRating =
+    data.reduce((sum, item) => sum + item.rating, 0) / totalRatings || 0;
+
+  return { average: averageRating.toFixed(1), total: totalRatings };
+};
+
+export async function fetchAverageRating() {
+  const { data, error } = await supabase
+      .from('ratings')
+      .select('rating'); // Fetch all ratings
+
+  if (error) {
+      console.error('Error fetching ratings:', error.message);
+      return null;
+  }
+
+  // Calculate the average rating manually
+  if (data.length === 0) {
+      return 0; // No ratings yet
+  }
+
+  const total = data.reduce((sum, item) => sum + item.rating, 0);
+  const average = total / data.length;
+  return average;
+}

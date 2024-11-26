@@ -8,6 +8,7 @@ import {
 import { supabase } from '../supabase';
 import '../styles/ObjectivesPage.css';
 import { Link } from 'react-router-dom';
+import RatingSystem from '../components/RatingSystem';
 // import { groupByCategory, groupByDate } from '../utils/objectiveHelpers';
 
 function ObjectivesPage() {
@@ -104,7 +105,7 @@ function ObjectivesPage() {
   // Handle creating a new objective
   const handleCreateObjective = async (e) => {
     e.preventDefault(); // Prevent the page from refreshing
-    alert('Objective created successfully!'); // Alert the user
+    // alert('Objective created successfully!'); // Alert the user
     
     if (!user) {
       setError(`You must be logged in to create an objective.`);
@@ -269,17 +270,17 @@ function ObjectivesPage() {
         {/* Objective Input Form */}
         <div className="objectives-list">
           <br/>
-          <div className="objectives-page-header">
-            <h1>List Your Goals and Objectives</h1>
-            <p>Start by addressing the Title. {''}
-            Then, fill out a short description of the task at hand. Be sure to include a deadline and a category,
-            such as <strong>Home, Work,</strong> or <strong>Personal</strong>.</p>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
-          </div>
-
         {/* Objective Input Form */}  
         <div className="objective-input-form">
+          {/* Header Section */}
+          <h1>List Your Goals and Objectives</h1>
+            <div>
+              • Start by addressing the Title.<br/>
+              • Then, fill out a short description of the task at hand.<br/>
+              • Include a deadline and select a category: {' '}
+              <em><strong>Work, Social,</strong> or <strong>Personal</strong></em>
+            </div>
+          <br/>
           <h2>Add a New Objective</h2>
           <form onSubmit={handleCreateObjective}>
             {/* Title Field */}
@@ -340,11 +341,11 @@ function ObjectivesPage() {
                   <input
                     type="radio"
                     name="category"
-                    value="Home"
-                    checked={newCategory === 'Home'}
+                    value="Social"
+                    checked={newCategory === 'Social'}
                     onChange={(e) => setNewCategory(e.target.value)}
                   />
-                  Home
+                  Social
                 </label>
                 <label>
                   <input
@@ -361,6 +362,8 @@ function ObjectivesPage() {
 
               {/* Action Buttons */}
               <div className="form-actions">
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {success && <p style={{ color: 'green' }}>Objective created successfully!</p>}
                 <button type="submit" className="btn btn-primary">Save Objective</button>
                 <button type="button" className="btn btn-warning" onClick={() => {
                     setNewTitle('');
@@ -406,11 +409,11 @@ function ObjectivesPage() {
                         <input
                           type="radio"
                           name="edit-category"
-                          value="Home"
-                          checked={editCategory === 'Home'}
+                          value="Social"
+                          checked={editCategory === 'Social'}
                           onChange={(e) => setEditCategory(e.target.value)}
                         />
-                        Home
+                        Social
                       </label>
                       <label>
                         <input
@@ -489,11 +492,11 @@ function ObjectivesPage() {
 
         {/* Grouped Objectives */}
       <div className="grouped-objectives">
-        <h1>Organize Your Objectives</h1>
+        <h1>Objectives</h1>
         {groupedObjectives && Object.entries(groupedObjectives).length > 0 ? (
           Object.entries(groupedObjectives).map(([group, groupObjectives]) => (
             <section key={group} className="objective-group">
-              <h2>{group.toUpperCase()}</h2>
+              <h2>{group}</h2>
               <div className="objectives-grid">
               <ul>
                 {groupObjectives.map((objective) => (
@@ -515,13 +518,18 @@ function ObjectivesPage() {
         ) : (
           <p>No grouped objectives available.</p>
         )}
-      </div>
-      </div>
-    {/* </div> */}
-        
 
+        
+      </div>
+        <div className="cta-section">
+            <RatingSystem /><br/>
+            <h4>Send us your feedback!</h4><br/>
+            <p>© Bold Motive Group LLC. All rights reserved.</p>
+        </div>
       
+      </div>
     </div>
+    
   );
 }
 
