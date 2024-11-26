@@ -1,0 +1,81 @@
+.home-page {
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+    background: linear-gradient(90deg, #dc0012, #ffa600);
+    color: white;
+  }
+  
+  .hero-content {
+    max-width: 50%;
+    font-size: 1.5rem;
+  }
+
+  .hero-content h1 {
+    margin-bottom: 20px;
+    font-size: 5.5rem;
+  }
+
+  .hero-content h5 {
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+  }
+  
+  .hero-image {
+    width: 40%;
+    border-radius: 10px;
+  }
+  
+  .cta-button {
+    background-color: #9c3712;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+  }
+  
+  .features-section,
+  .testimonials-section {
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .features-grid,
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .feature-card,
+  .testimonial-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    background: white;
+  }
+  
+  .feature-card i {
+    font-size: 30px;
+    color: #dc0012;
+  }
+  
+  .cta-section {
+    padding: 50px 20px;
+    text-align: center;
+    background: linear-gradient(90deg, #dc0012, #ffa600);
+    color: white;
+  }
+  
+  .cta-section .cta-button {
+    background-color: #000000;
+  }
+  
