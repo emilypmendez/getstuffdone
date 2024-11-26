@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+// import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { loginUser } from '../services/supabaseClient';
+import { Link } from 'react-router-dom';
+import '../styles/AuthPage.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); // Initialize navigate
+  const [success, setSuccess] = useState('');
+  // const navigate = useNavigate(); // Initialize navigate
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(''); // Clear any previous errors
+
     if (!email || !password) {
       console.error('Email and password are required.');
       setError('Email and password are required.');
@@ -16,31 +22,60 @@ function LoginPage() {
     }
 
     try {
-      const user = await loginUser(email, password);
-      console.log('Logged in user:', user); // Ensure this logs the correct user object.
-      if (user) {
-        // Proceed with navigation or other logic
-        console.log('Login successful: ', user);
-        navigate('/objectives'); // Navigate to the objectives page after login
+      const { error } = await loginUser(email, password);
+      if (error) {
+          setError('Invalid email or password.');
       } else {
-        setError('User is undefined after login.');
+          setSuccess('Logged in successfully! Redirecting...');
+          setTimeout(() => {
+              window.location.href = '/objectives'; // Redirect to the objectives page
+          }, 2000);
       }
     } catch (err) {
-      console.error('Login error:', err.message);
-      setError('Login failed. Please check your credentials and try again.', err.message);
+        console.error(err);
+        setError('Something went wrong. Please try again.');
     }
   };
 
   return (
-    <form onSubmit={(e) => {
-        e.preventDefault();
-        handleLogin(email, password) ;
-      }}>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button type="submit" className="btn btn-primary">Login</button>
-    </form>
+    <>
+    <div className="auth-container">
+      <div className="auth-card">
+          <h1>Login</h1>
+          <p>Welcome! Please login to your account.</p>
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
+          <form onSubmit={handleLogin}>
+              <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                      type="email"
+                      id="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                  />
+              </div>
+              <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input
+                      type="password"
+                      id="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                  />
+              </div>
+              <button type="submit" className="btn btn-primary">Login</button>
+          </form>
+          <p className="redirect-link">
+              Create a free account today! <Link to="/register">Register here</Link>.
+          </p>
+      </div>
+  </div>
+  </>
   );
 }
 

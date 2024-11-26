@@ -61,6 +61,35 @@ function ObjectivesPage() {
     fetchUser();
   }, []);  
 
+  useEffect(() => {
+    const fetchUserAndObjectives = async () => {
+        const { data: user, error } = await supabase.auth.getUser();
+
+        if (error) {
+            console.error('Error fetching user:', error);
+            setUser(null);
+        } else {
+            console.log('Fetched user:', user);
+            setUser(user);
+
+            // Fetch objectives for the new user
+            if (user) {
+                try {
+                    const data = await fetchObjectives();
+                    console.log('Fetched objectives:', data);
+                    setObjectives(data || []); // Set new objectives or empty array
+                } catch (err) {
+                    console.error('Error fetching objectives:', err.message);
+                }
+            } else {
+                setObjectives([]); // Clear objectives for logged-out state
+            }
+        }
+    };
+
+      fetchUserAndObjectives();
+  }, [user]); // Re-run when user changes
+
   // Automatically hide the success message after 3 seconds
   useEffect(() => {
     if (success) {

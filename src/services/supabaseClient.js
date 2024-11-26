@@ -12,9 +12,16 @@ async function getUserId() {
 
 // Example: Register a new user
 export async function registerUser(email, password) {
-  const { user, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw error;
-  return user;
+  try {
+    const { user, error } = await supabase.auth.signUp({
+        email,
+        password,
+    });
+    return { user, error };  // Ensure it returns an object with 'user' and 'error' keys
+  } catch (err) {
+      console.error('Error in registerUser:', err);
+      return { user: null, error: err.message };
+  }
 }
 
 // Example: Login user
@@ -35,10 +42,28 @@ export async function loginUser(email, password) {
 
 // Fetch objectives
 export async function fetchObjectives() {
+  // const { data, error } = await supabase
+  //   .from('objectives')
+  //   .select('id, title, description, deadline, category, user_id'); // Explicitly fetch fields
+  // if (error) throw error;
+  // return data;
+
+  const user = await supabase.auth.getUser();
+
+  if (!user.data?.user?.id) {
+      return []; // Return empty array if no user is logged in
+  }
+
   const { data, error } = await supabase
-    .from('objectives')
-    .select('id, title, description, deadline, category, user_id'); // Explicitly fetch fields
-  if (error) throw error;
+      .from('objectives')
+      .select('*')
+      .eq('user_id', user.data.user.id); // Fetch only objectives for the logged-in user
+
+  if (error) {
+      console.error('Error fetching objectives:', error);
+      return [];
+  }
+
   return data;
 }
 

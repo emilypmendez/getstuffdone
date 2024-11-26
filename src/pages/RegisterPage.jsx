@@ -1,64 +1,74 @@
 import { useState } from 'react';
-import { supabase } from '../supabase';
+import { Link } from 'react-router-dom';
+import { registerUser } from '../services/supabaseClient';
+import '../styles/AuthPage.css';
 
 function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState(''); // For displaying the confirmation message
+  // const [message, setMessage] = useState(''); // For displaying the confirmation message
   const [error, setError] = useState(''); // For displaying errors
+  const [success, setSuccess] = useState(''); // For displaying success messages
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent form submission reload
-    setMessage(''); // Clear any previous message
-    setError(''); // Clear any previous error
-
+    e.preventDefault();
+    setError('');
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+        const { response } = await registerUser(email, password);
 
-      if (error) {
-        setError(error.message); // Display error if registration fails
-        return;
-      }
-
-      // Log data for debugging purposes
-      console.log('Signup data:', data);
-
-      // Display success message
-      setMessage('Check your email for confirmation.');
-      setEmail(''); // Clear the form
-      setPassword('');
+        // Fallback check to avoid destructuring undefined
+        const { error } = response || {};
+        
+        if (error) {
+            setError('Registration failed. Please try again.');
+        } else {
+            setSuccess('Registration successful! Check your email to confirm your account.');
+        }
     } catch (err) {
-      console.error('Unexpected error during registration:', err.message);
-      setError('An unexpected error occurred. Please try again later.');
+        console.error(err);
+        setError('Something went wrong. Please try again.');
     }
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Register</button>
-      </form>
-
-      {/* Display confirmation or error messages */}
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+    <>
+      <div className="auth-container">
+          <div className="auth-card">
+              <h1>Register</h1>
+              <p>Create an account to start managing your objectives.</p>
+              {error && <div className="error-message">{error}</div>}
+              {success && <div className="success-message">{success}</div>}
+              <form onSubmit={handleRegister}>
+                  <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <input
+                          type="email"
+                          id="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                      />
+                  </div>
+                  <div className="form-group">
+                      <label htmlFor="password">Password</label>
+                      <input
+                          type="password"
+                          id="password"
+                          placeholder="Enter a password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                      />
+                  </div>
+                  <button type="submit" className="btn btn-primary">Register</button>
+              </form>
+              <p className="redirect-link">
+                  Already have an account? <Link to="/login">Login here</Link>.
+              </p>
+          </div>
+        </div>
+    </>
   );
 }
 

@@ -23,10 +23,10 @@ const HomePage = () => {
       {/* Hero Section */}
       <header className="hero-section">
         <div className="hero-content">
-          <h1>Fast. Easy. Clean.</h1>
+          <h1>Stay organized!</h1>
           <h5>
-            Stay organized and productive.
-          </h5>
+            Manage your tasks and objectives with ease.
+          </h5><br/>
           <Link to="/register" className="cta-button">
             <strong>Register Now</strong>
           </Link>
