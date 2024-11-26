@@ -104,6 +104,7 @@ function ObjectivesPage() {
   // Handle creating a new objective
   const handleCreateObjective = async (e) => {
     e.preventDefault(); // Prevent the page from refreshing
+    alert('Objective created successfully!'); // Alert the user
     
     if (!user) {
       setError(`You must be logged in to create an objective.`);
@@ -125,14 +126,14 @@ function ObjectivesPage() {
       //   category: newCategory,
       // }); // Log the data being sent to the server
 
-      const newObjective = await createObjective({
-        title: newTitle.trim(),
-        description: newDescription.trim(),
-        deadline: newDeadline,
-        category: newCategory,
-      });
+      const newObjective = await createObjective(
+        newTitle.trim(),
+        newDescription.trim(),
+        newDeadline,
+        newCategory,
+      );
   
-      console.log('Objective created:', newObjective);
+      console.log('Objective created:', newObjective, 'handleCreateObjective'); // Debug log
   
       // Update state
       setObjectives((prev) => [...prev, newObjective]);
@@ -448,10 +449,12 @@ function ObjectivesPage() {
                       <div>
                         <table>
                           <th><strong>•</strong> {obj?.title || 'Untitled'}</th>
+                          <tbody>
                           <tr><td><strong>•</strong> {obj?.description || 'No description entered'}</td></tr>
                           <tr><td><message><strong>Due By:</strong> {formatDate(obj?.deadline) || 'No date determined'}</message></td></tr>
                           <tr><td><strong>Category:</strong> {obj?.category || 'No category saved'}</td></tr>
                           <tr><td><message><strong>Date Created:</strong> {formatDate(obj?.created_at) || 'No date generated'}</message></td></tr>
+                          </tbody>
                         </table>
                         <br/>
                         <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><i className="fas fa-edit"></i><strong> Edit</strong></button>

@@ -45,17 +45,29 @@ export async function fetchObjectives() {
 // Create a new objective
 export async function createObjective(title, description, deadline, category) {
   try {
-    console.log('Creating objective with:', { title, description }); // Debug log
+    console.log('Creating objective with:', title, description); // Debug log
     const userId = await getUserId();
     if (!userId) {
       throw new Error('User is not logged in.');
     }
+    
+    console.log('Data for SUPABASE: ', { 
+      title: title, 
+      description: description, 
+      user_id: userId, 
+      deadline: deadline, 
+      category: category 
+    });
 
     const { data, error } = await supabase
       .from('objectives')
-      .insert([
-        { title, description, user_id: userId, deadline, category }
-      ])
+      .insert({ 
+        title: title, 
+        description: description, 
+        user_id: userId, 
+        deadline: deadline, 
+        category: category 
+      })
       .select('*'); // Explicitly return the inserted rows
       console.log('Supabase response:', { data, error });
 
