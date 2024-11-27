@@ -422,38 +422,40 @@ function ObjectivesPage() {
                   {/* Editing Mode */}
                   {editingId === obj.id ? (
                     <>
-                    <div>
-                      <h3>Category</h3>
-                      <label>
-                        <input
-                          type="radio"
-                          name="edit-category"
-                          value="Work"
-                          checked={editCategory === 'Work'}
-                          onChange={(e) => setEditCategory(e.target.value)}
-                        />
-                        Work
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="edit-category"
-                          value="Social"
-                          checked={editCategory === 'Social'}
-                          onChange={(e) => setEditCategory(e.target.value)}
-                        />
-                        Social
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          name="edit-category"
-                          value="Personal"
-                          checked={editCategory === 'Personal'}
-                          onChange={(e) => setEditCategory(e.target.value)}
-                        />
-                        Personal
-                      </label>
+                    <div className="form-group">
+                      <label>Category</label>
+                      <div className="radio-group">
+                        <label>
+                          <input
+                            type="radio"
+                            name="edit-category"
+                            value="Work"
+                            checked={editCategory === 'Work'}
+                            onChange={(e) => setEditCategory(e.target.value)}
+                          />
+                          Work
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="edit-category"
+                            value="Social"
+                            checked={editCategory === 'Social'}
+                            onChange={(e) => setEditCategory(e.target.value)}
+                          />
+                          Social
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="edit-category"
+                            value="Personal"
+                            checked={editCategory === 'Personal'}
+                            onChange={(e) => setEditCategory(e.target.value)}
+                          />
+                          Personal
+                        </label>
+                      </div>
                     </div>
 
                       <input
@@ -471,8 +473,10 @@ function ObjectivesPage() {
                         onChange={(e) => setEditDeadline(e.target.value)}
                       />
                       <br/>
+                      <div className="form-actions">
                       <button className="btn btn-dark" onClick={() => handleSaveEdit(obj.id)}><strong>Save</strong></button>
                       <button className="btn btn-danger" onClick={() => handleCancelEdit(null)}><strong>Cancel</strong></button>
+                      </div>
                       <br/><br/>
                     </>
                   ) : (
@@ -489,8 +493,10 @@ function ObjectivesPage() {
                           </tbody>
                         </table>
                         <br/>
+                        <div className="form-actions">
                         <button className="btn btn-info" onClick={() => handleEditClick(obj.id)}><i className="fas fa-edit"></i><strong> Edit</strong></button>
                         <button className="btn btn-danger" onClick={() => handleDeleteObjective(obj.id)}><i className="fas fa-trash"></i><strong> Delete</strong></button>
+                        </div>
                         <br/>
                         <br/>
                       </div>
