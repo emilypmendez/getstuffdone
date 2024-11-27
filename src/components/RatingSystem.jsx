@@ -34,7 +34,7 @@ const RatingSystem = () => {
 
   return (
     <div className="rating-system">
-      <h2>Rate Our Product</h2>
+      <h2>How would you rate us?</h2>
       <div className="stars">
         {[1, 2, 3, 4, 5].map((star) => (
           <span
