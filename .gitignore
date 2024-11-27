@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 
+# Private
 .env
 .env.local
 .env.development.local

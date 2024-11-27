@@ -84,7 +84,7 @@ const HomePage = () => {
               <em>The grouping and deadline features are game-changers. Highly
               recommend it!</em>
             </p>
-            <strong>- Priya from Pakistan</strong>
+            <strong>- Greta from Washington D.C., USA</strong>
           </div>
           <div className="testimonial-card">
             <p>

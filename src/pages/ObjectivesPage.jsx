@@ -552,7 +552,7 @@ function ObjectivesPage() {
       </div>
         <div className="cta-section">
             <RatingSystem /><br/>
-            <h4>Send us your feedback!</h4><br/>
+            <h4><Link to="/feedback">Send us your feedback!</Link></h4><br/>
             <p>© Bold Motive Group LLC. All rights reserved.</p>
         </div>
       
