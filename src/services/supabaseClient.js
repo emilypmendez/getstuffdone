@@ -47,9 +47,7 @@ export async function loginUser(email, password) {
  */
 export async function resetPasswordForEmail(email) {
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`, // Update to your reset password route
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
 
     if (error) {
       console.error('Error sending password reset email:', error.message);

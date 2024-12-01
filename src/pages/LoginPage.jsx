@@ -46,15 +46,17 @@ function LoginPage() {
     setSuccess('');
 
     try {
-      const { success, message, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail);
-      if (success) {
-        setSuccess(message); // Display success message
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: '/reset-password', // Update to the reset password route
+      });
+      if (error) {
+        setError('Failed to send reset link. Please check your email address and try again.');
       } else {
-        setError(error); // Display error message
+        setSuccess('A password reset link has been sent to your email address!');
       }
     } catch (err) {
-        setError('An unexpected error occurred. Please try again later.'); // Handle unexpected errors
         console.error('Error in resetPasswordForEmail:', err.message);
+        setError('An unexpected error occurred. Please try again later.');
     }
   };
 
