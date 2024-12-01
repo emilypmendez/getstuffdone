@@ -30,6 +30,9 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
                 <Link to="/feedback">Give Feedback</Link>
               </li>
               <li>
+                <Link to="/reset-password">Reset Password</Link>
+              </li>
+              <li>
                 <button
                   onClick={() => {
                     handleLogout()
