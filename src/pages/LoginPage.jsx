@@ -46,17 +46,15 @@ function LoginPage() {
     setSuccess('');
 
     try {
-      const { success, message, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: '/reset-password',
-      });
-      if (!success) {
-        setError(error);
+      const { success, message, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail);
+      if (success) {
+        setSuccess(message); // Display success message
       } else {
-        setSuccess(message);
-        console.log('Password reset email sent to:', email);
+        setError(error); // Display error message
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+        setError('An unexpected error occurred. Please try again later.'); // Handle unexpected errors
+        console.error('Error in resetPasswordForEmail:', err.message);
     }
   };
 
