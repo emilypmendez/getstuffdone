@@ -46,7 +46,7 @@ function LoginPage() {
     setSuccess('');
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: 'http://localhost:3000/reset-password', // Replace with your frontend URL
+        redirectTo: '/reset-password', // Replace with your frontend URL
       });
       if (error) throw error;
       setSuccess('Password reset email sent. Please check your inbox.');
