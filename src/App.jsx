@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import RegisterPage from './pages/RegisterPage';
 import ObjectivesPage from './pages/ObjectivesPage';
 import Navbar from './components/Navbar';
@@ -68,6 +69,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/objectives" element={ <ObjectivesPage /> } />
           <Route path="/feedback" element={<FeedbackPage />} />

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 // import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { loginUser } from '../services/supabaseClient';
+import { supabase } from '../supabase';
 import { Link } from 'react-router-dom';
 import '../styles/AuthPage.css';
 
@@ -9,7 +10,8 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  // const navigate = useNavigate(); // Initialize navigate
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,6 +36,22 @@ function LoginPage() {
     } catch (err) {
         console.error(err);
         setError('Something went wrong. Please try again.');
+    }
+  };
+
+  // Handle Forgot Password
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: 'http://localhost:3000/reset-password', // Replace with your frontend URL
+      });
+      if (error) throw error;
+      setSuccess('Password reset email sent. Please check your inbox.');
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -73,6 +91,41 @@ function LoginPage() {
           <p className="redirect-link">
               Create a free account today! <Link to="/register">Register here</Link>.
           </p>
+          <br/>
+            <div>
+                <p>
+                Forgot your password?{' '}
+                <button
+                    className="forgot-password-link"
+                    onClick={() => setShowForgotPassword(!showForgotPassword)}
+                >
+                    Click here
+                </button>
+                </p>
+            </div>
+            {showForgotPassword && (
+                <div className="forgot-password-modal">
+                <hr/>
+                <h2>Reset Password</h2>
+                <form onSubmit={handleForgotPassword}>
+                    <div>
+                    <center>
+                    <label>Enter your email address below to reset your password.</label>
+                    <input
+                        type="email"
+                        value={forgotPasswordEmail}
+                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                        required
+                    />
+                    </center>
+                    </div>
+                    <button type="submit">Send Reset Link</button>
+                </form>
+                {error && <p className="error-message">{error}</p>}
+                {success && <p className="success-message">{success}</p>}
+                </div>
+            )}
+          
       </div>
   </div>
   </>
