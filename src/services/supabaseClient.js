@@ -40,6 +40,30 @@ export async function loginUser(email, password) {
   }
 }
 
+/**
+ * Sends a password reset email to the specified email address.
+ * @param {string} email - The user's email address
+ * @returns {Promise<object>} - An object indicating success or failure
+ */
+export async function resetPasswordForEmail(email) {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`, // Update to your reset password route
+    });
+
+    if (error) {
+      console.error('Error sending password reset email:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, message: 'Password reset email sent successfully!' };
+  } catch (err) {
+    console.error('Unexpected error during password reset:', err.message);
+    return { success: false, error: 'An unexpected error occurred.' };
+  }
+}
+
+
 // Fetch objectives
 export async function fetchObjectives() {
   // const { data, error } = await supabase

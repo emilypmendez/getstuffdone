@@ -44,12 +44,17 @@ function LoginPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
-        redirectTo: '/reset-password', // Replace with your frontend URL
+      const { success, message, error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: '/reset-password',
       });
-      if (error) throw error;
-      setSuccess('Password reset email sent. Please check your inbox.');
+      if (!success) {
+        setError(error);
+      } else {
+        setSuccess(message);
+        console.log('Password reset email sent to:', email);
+      }
     } catch (error) {
       setError(error.message);
     }
