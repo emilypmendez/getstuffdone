@@ -25,7 +25,7 @@ const HomePage = () => {
         <div className="hero-content">
           <h1>Stay organized!</h1>
           <h5>
-            Manage your tasks and objectives with ease.
+            To Do List App
           </h5><br/>
           <Link to="/register" className="cta-button">
             <strong>Register Now</strong>
